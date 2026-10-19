@@ -26,6 +26,77 @@ function getChatWebAppUrl() {
   return webAppUrl;
 }
 
+// Har qanday a'zo yozganda yoki start bosganda uni bildirishnomalar ro'yxatiga qo'shish
+bot.use(async (ctx, next) => {
+  if (ctx.chat?.id) {
+    storage.registerChat(ctx.chat.id, {
+      name: ctx.from?.first_name || ctx.chat.title || 'A\'zo',
+      type: ctx.chat.type
+    });
+  }
+  return next();
+});
+
+// Barcha sheriklarga yangi harajat haqida bildirishnoma tarqatish
+async function broadcastNewExpense(exp, sourceChatId = null) {
+  if (!token || token === 'YOUR_TELEGRAM_BOT_TOKEN_HERE') return;
+
+  const chatData = storage.getChatData('main');
+  const calc = calculateSettlement(chatData.expenses, chatData.peopleCount);
+  const peopleCount = chatData.peopleCount || (calc.peopleCount || Object.keys(calc.spentMap).length || 2);
+  const perPerson = calc.perPersonShare || Math.round(calc.totalExpense / peopleCount);
+
+  const text =
+    `🔔 <b>YANGI HARAJAT QO'SHILDI!</b>\n\n` +
+    `👤 <b>Kim:</b> ${exp.userName}\n` +
+    `💰 <b>Summa:</b> ${formatMoney(exp.amount)} so'm\n` +
+    `📝 <b>Izoh:</b> ${exp.description}\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n` +
+    `📊 <b>Jami oylik harajat:</b> ${formatMoney(calc.totalExpense)} so'm\n` +
+    `👥 <b>1 kishiga tushgan ulush:</b> ${formatMoney(perPerson)} so'm (${peopleCount} kishi)\n\n` +
+    `💡 <i>Hisob-kitobingiz avtomatik yangilandi.</i>`;
+
+  const inlineKb = new InlineKeyboard();
+  if (webAppUrl) {
+    inlineKb.webApp('📊 Mini Appda ko\'rish', webAppUrl);
+  }
+
+  const subscribers = storage.getSubscribers();
+  for (const [subId] of Object.entries(subscribers)) {
+    if (sourceChatId && String(subId) === String(sourceChatId)) continue;
+    try {
+      await bot.api.sendMessage(subId, text, {
+        parse_mode: 'HTML',
+        reply_markup: inlineKb
+      });
+    } catch (err) {
+      console.warn(`Bildirishnoma yuborishda xatolik (${subId}):`, err.message);
+    }
+  }
+}
+
+// Barcha sheriklarga oy yakuniy hisob-kitobini tarqatish
+async function broadcastMonthEnd(reportText) {
+  if (!token || token === 'YOUR_TELEGRAM_BOT_TOKEN_HERE') return;
+
+  const inlineKb = new InlineKeyboard();
+  if (webAppUrl) {
+    inlineKb.webApp('📊 Mini Appda ko\'rish', webAppUrl);
+  }
+
+  const subscribers = storage.getSubscribers();
+  for (const [subId] of Object.entries(subscribers)) {
+    try {
+      await bot.api.sendMessage(subId, reportText, {
+        parse_mode: 'HTML',
+        reply_markup: inlineKb
+      });
+    } catch (err) {
+      console.warn(`Oy yakuni hisobotini yuborishda xato (${subId}):`, err.message);
+    }
+  }
+}
+
 // Asosiy menyu klaviaturasi
 function getMainKeyboard() {
   const kb = new Keyboard();
@@ -34,10 +105,56 @@ function getMainKeyboard() {
   }
   return kb
     .text('➕ Harajat yozish').text('📋 Ro\'yxat').row()
-    .text('🧮 Hisoblash (Taqsimlash)').text('👥 Odamlar soni').row()
+    .text('🧮 Hisoblash (Taqsimlash)').text('👥 A\'zolar ro\'yxati').row()
     .text('↩️ Oxirgisini bekor qilish').text('🔄 Yangi oyni boshlash')
     .resized();
 }
+
+// A'zolar / Foydalanuvchilar ro'yxati
+async function handleMembers(ctx) {
+  const chatData = storage.getChatData('main');
+  const members = storage.getMembers();
+  const calc = calculateSettlement(chatData.expenses, chatData.peopleCount, members.map(m => m.name));
+
+  if (members.length === 0) {
+    return ctx.reply(
+      `👥 <b>A'zolar ro'yxati hozircha bo'sh.</b>\n\n` +
+      `A'zolar botga /start bosganda yoki birinchi harajatni yozganda avtomatik ro'yxatga qo'shiladi.`,
+      { parse_mode: 'HTML' }
+    );
+  }
+
+  let text = `👥 <b>GURUH A'ZOLARI VA ULARNING BALANSI:</b>\n`;
+  text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+
+  members.forEach((m, idx) => {
+    const spent = calc.spentMap ? (calc.spentMap[m.name] || 0) : 0;
+    const diff = calc.perPersonShare ? spent - calc.perPersonShare : 0;
+    const badge = diff > 0.01 ? `🟢 +${formatMoney(diff)} so'm (haqdor)` :
+                  diff < -0.01 ? `🔴 -${formatMoney(-diff)} so'm (qarzdor)` : `⚪️ Teng`;
+
+    text += `${idx + 1}. 👤 <b>${m.name}</b>\n`;
+    text += `   Sarfladi: <b>${formatMoney(spent)} so'm</b> | ${badge}\n`;
+  });
+
+  text += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+  text += `👥 <b>Jami a'zolar:</b> ${members.length} kishi\n`;
+  text += `💰 <b>Jami harajat:</b> ${formatMoney(calc.totalExpense || 0)} so'm\n\n`;
+  text += `💡 <i>A'zo nomidan harajat yozish: <code>Ali 50000 bozorlik</code></i>`;
+
+  const inlineKb = new InlineKeyboard();
+  if (webAppUrl) {
+    inlineKb.webApp('📱 Ilovada boshqarish', webAppUrl);
+  }
+
+  await ctx.reply(text, {
+    parse_mode: 'HTML',
+    reply_markup: inlineKb
+  });
+}
+
+bot.command(['azolar', 'a_zolar', 'foydalanuvchilar', 'members'], handleMembers);
+bot.hears(['👥 A\'zolar ro\'yxati', '👥 A\'zolar'], handleMembers);
 
 // Holatni saqlash (oddiy session: odamlar sonini kutish)
 const userState = {};
@@ -154,11 +271,14 @@ bot.command(['harajat', 'qosh', 'xarajat'], async (ctx) => {
     `👥 <b>1 kishiga:</b> ${formatMoney(calc.perPersonShare)} so'm (${calc.peopleCount || Object.keys(calc.spentMap).length || 2} kishi)`,
     { parse_mode: 'HTML', reply_markup: inlineKb }
   );
+
+  // Boshqa barcha sheriklarga yangi harajat haqida bildirishnoma yuborish
+  broadcastNewExpense(exp, ctx.chat.id).catch(e => console.warn('Broadcast error:', e.message));
 });
 
 // /royxat komandasi va tugmasi
 async function handleList(ctx) {
-  const expenses = storage.getExpenses(ctx.chat.id);
+  const expenses = storage.getExpenses('main');
   if (expenses.length === 0) {
     return ctx.reply('📭 Hozircha hech qanday harajat yozilmagan.\nHarajat yozish uchun: <code>70000 go\'sht</code> deb yozing.', {
       parse_mode: 'HTML'
@@ -286,18 +406,58 @@ async function handleUndo(ctx) {
 bot.command('bekor', handleUndo);
 bot.hears('↩️ Oxirgisini bekor qilish', handleUndo);
 
-// Yangi oy boshlash (Arxivlash)
-async function handleNewMonth(ctx) {
-  const archived = storage.archiveMonth(ctx.chat.id);
-  if (!archived) {
-    return ctx.reply('ℹ️ Hozirgi oyda harajatlar yo\'q, yangi oy allaqachon faol.');
+// Yangi oy boshlash (Arxivlash va yakuniy hisobotni tarqatish)
+async function handleNewMonth(ctx = null) {
+  const chatData = storage.getChatData('main');
+  const expenses = chatData.expenses;
+  if (!expenses || expenses.length === 0) {
+    if (ctx) await ctx.reply('ℹ️ Hozirgi oyda harajatlar yo\'q, yangi oy allaqachon faol.');
+    return null;
   }
-  await ctx.reply(
-    `🎉 <b>Oy yakunlandi va arxivlandi!</b>\n` +
-    `Jami ${archived.expenses.length} ta harajat arxivida saqlandi.\n` +
-    `Yangi oy uchun hisob-kitob 0 dan boshlandi. Yangi harajatlarni kiritishingiz mumkin!`,
-    { parse_mode: 'HTML', reply_markup: getMainKeyboard(ctx.chat.id) }
-  );
+
+  const members = storage.getMembers().map(m => m.name);
+  const result = calculateSettlement(expenses, chatData.peopleCount, members);
+  const peopleCount = chatData.peopleCount || result.peopleCount || 2;
+
+  let report = `🏁 <b>OY YAKUNLANDI VA HISOB-KITOB QILINDI!</b>\n`;
+  report += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+  report += `💰 <b>Jami oylik harajat:</b> ${formatMoney(result.totalExpense)} so'm\n`;
+  report += `👥 <b>A'zolar soni:</b> ${peopleCount} kishi\n`;
+  report += `💵 <b>1 kishiga tushgan ulush:</b> ${formatMoney(result.perPersonShare)} so'm\n\n`;
+
+  report += `📊 <b>A'zolarning oylik sarfi:</b>\n`;
+  for (const [name, sum] of Object.entries(result.spentMap)) {
+    const diff = sum - result.perPersonShare;
+    const diffText = diff > 0.01 ? `(+${formatMoney(diff)} haqdor)` : diff < -0.01 ? `(-${formatMoney(-diff)} qarzdor)` : `(teng)`;
+    report += `• <b>${name}:</b> ${formatMoney(sum)} so'm <i>${diffText}</i>\n`;
+  }
+
+  report += `\n⚖️ <b>KIM KIMGA QANCHA PUL BERISHI KERAK:</b>\n`;
+  if (result.transactions.length === 0) {
+    report += `🎉 Barcha a'zolar teng xarajat qilgan! Hech kim hech kimga qarz emas.\n`;
+  } else {
+    result.transactions.forEach((t) => {
+      report += `👉 <b>${t.from}</b> ➔ <b>${t.to}</b> ga: <b>${formatMoney(t.amount)} so'm</b> berishi kerak\n`;
+    });
+  }
+
+  report += `━━━━━━━━━━━━━━━━━━━━━━\n`;
+  report += `✨ <i>O'tgan oy arxivlandi. Yangi oy uchun hisob-kitob 0 dan boshlandi!</i>`;
+
+  // Arxivlash
+  storage.archiveMonth('main');
+
+  // Barcha a'zolarga oylik yakuniy hisobotni tarqatish (SMS/Telegram bildirishnoma)
+  await broadcastMonthEnd(report);
+
+  if (ctx) {
+    await ctx.reply(report, {
+      parse_mode: 'HTML',
+      reply_markup: getMainKeyboard()
+    });
+  }
+
+  return report;
 }
 
 bot.command('yangi_oy', handleNewMonth);
@@ -405,6 +565,9 @@ bot.on('message:text', async (ctx) => {
       `👥 <b>1 kishiga:</b> ${formatMoney(calc.perPersonShare)} so'm (${calc.peopleCount || Object.keys(calc.spentMap).length || 2} kishi)`,
       { parse_mode: 'HTML', reply_markup: inlineKb }
     );
+
+    // Boshqa barcha sheriklarga yangi harajat haqida bildirishnoma yuborish
+    broadcastNewExpense(exp, ctx.chat.id).catch(e => console.warn('Broadcast error:', e.message));
   }
 });
 
@@ -436,4 +599,9 @@ if (token && token !== 'YOUR_TELEGRAM_BOT_TOKEN_HERE') {
   });
 }
 
-module.exports = bot;
+module.exports = {
+  bot,
+  broadcastNewExpense,
+  broadcastMonthEnd,
+  handleNewMonth
+};
