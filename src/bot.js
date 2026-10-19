@@ -22,17 +22,15 @@ const bot = new Bot(token || 'dummy_token');
 
 const webAppUrl = (process.env.WEBAPP_URL || '').replace(/\/$/, '');
 
-function getChatWebAppUrl(chatId) {
-  if (!webAppUrl) return '';
-  return chatId ? `${webAppUrl}?chatId=${chatId}` : webAppUrl;
+function getChatWebAppUrl() {
+  return webAppUrl;
 }
 
 // Asosiy menyu klaviaturasi
-function getMainKeyboard(chatId = null) {
+function getMainKeyboard() {
   const kb = new Keyboard();
-  const appUrl = getChatWebAppUrl(chatId);
-  if (appUrl) {
-    kb.webApp('📱 Ilovani ochish (Mini App)', appUrl).row();
+  if (webAppUrl) {
+    kb.webApp('📱 Ilovani ochish (Mini App)', webAppUrl).row();
   }
   return kb
     .text('➕ Harajat yozish').text('📋 Ro\'yxat').row()
@@ -130,20 +128,30 @@ bot.command(['harajat', 'qosh', 'xarajat'], async (ctx) => {
     );
   }
 
-  const exp = storage.addExpense(ctx.chat.id, {
+  const exp = storage.addExpense('main', {
     userId: ctx.from?.id,
     userName: parsed.name,
     amount: parsed.amount,
     description: parsed.description
   });
 
-  const inlineKb = new InlineKeyboard().text('❌ Bekor qilish', `delete_${exp.id}`);
+  const chatData = storage.getChatData('main');
+  const calc = calculateSettlement(chatData.expenses, chatData.peopleCount);
+
+  const inlineKb = new InlineKeyboard();
+  if (webAppUrl) {
+    inlineKb.webApp('📊 Umumiy hisob (Mini App)', webAppUrl).row();
+  }
+  inlineKb.text('❌ Bekor qilish', `delete_${exp.id}`);
 
   await ctx.reply(
-    `✅ <b>Harajat qo'shildi!</b>\n` +
+    `✅ <b>Harajat umumiy hisobga qo'shildi!</b>\n\n` +
     `👤 <b>Kim:</b> ${exp.userName}\n` +
     `💰 <b>Summa:</b> ${formatMoney(exp.amount)} so'm\n` +
-    `📝 <b>Izoh:</b> ${exp.description}`,
+    `📝 <b>Izoh:</b> ${exp.description}\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n` +
+    `📊 <b>Jami oylik harajat:</b> ${formatMoney(calc.totalExpense)} so'm\n` +
+    `👥 <b>1 kishiga:</b> ${formatMoney(calc.perPersonShare)} so'm (${calc.peopleCount || Object.keys(calc.spentMap).length || 2} kishi)`,
     { parse_mode: 'HTML', reply_markup: inlineKb }
   );
 });
@@ -371,20 +379,30 @@ bot.on('message:text', async (ctx) => {
   const parsed = parseExpenseMessage(text, defaultName);
 
   if (parsed && parsed.amount > 0) {
-    const exp = storage.addExpense(chatId, {
+    const exp = storage.addExpense('main', {
       userId: ctx.from?.id,
       userName: parsed.name,
       amount: parsed.amount,
       description: parsed.description
     });
 
-    const inlineKb = new InlineKeyboard().text('❌ Bekor qilish', `delete_${exp.id}`);
+    const chatData = storage.getChatData('main');
+    const calc = calculateSettlement(chatData.expenses, chatData.peopleCount);
+
+    const inlineKb = new InlineKeyboard();
+    if (webAppUrl) {
+      inlineKb.webApp('📊 Umumiy hisob (Mini App)', webAppUrl).row();
+    }
+    inlineKb.text('❌ Bekor qilish', `delete_${exp.id}`);
 
     await ctx.reply(
-      `✅ <b>Harajat saqlandi!</b>\n` +
+      `✅ <b>Harajat umumiy hisobga qo'shildi!</b>\n\n` +
       `👤 <b>Kim:</b> ${exp.userName}\n` +
       `💰 <b>Summa:</b> ${formatMoney(exp.amount)} so'm\n` +
-      `📝 <b>Izoh:</b> ${exp.description}`,
+      `📝 <b>Izoh:</b> ${exp.description}\n\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `📊 <b>Jami oylik harajat:</b> ${formatMoney(calc.totalExpense)} so'm\n` +
+      `👥 <b>1 kishiga:</b> ${formatMoney(calc.perPersonShare)} so'm (${calc.peopleCount || Object.keys(calc.spentMap).length || 2} kishi)`,
       { parse_mode: 'HTML', reply_markup: inlineKb }
     );
   }
