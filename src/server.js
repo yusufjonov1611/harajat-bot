@@ -6,8 +6,9 @@ const storage = require('./storage');
 const { calculateSettlement, formatMoney } = require('./calculator');
 
 // Telegram Botni parallel ishga tushirish
+let botModule = null;
 try {
-  require('./bot');
+  botModule = require('./bot');
 } catch (botErr) {
   console.warn('Telegram bot yuklanishida ogohlantirish:', botErr.message);
 }
@@ -20,21 +21,23 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Default chat ID for global/web app use
-const DEFAULT_CHAT = 'web_global';
+const DEFAULT_CHAT = 'main';
 
 // GET: Current expenses and calculation
 app.get('/api/expenses', (req, res) => {
   const chatId = req.query.chatId || DEFAULT_CHAT;
   const chatData = storage.getChatData(chatId);
   const peopleCount = req.query.peopleCount ? parseInt(req.query.peopleCount, 10) : chatData.peopleCount;
+  const members = storage.getMembers().map(m => m.name);
 
-  const calculation = calculateSettlement(chatData.expenses, peopleCount);
+  const calculation = calculateSettlement(chatData.expenses, peopleCount, members);
 
   res.json({
     success: true,
     expenses: chatData.expenses,
     peopleCount: chatData.peopleCount,
-    calculation
+    calculation,
+    members: storage.getMembers()
   });
 });
 
@@ -54,7 +57,13 @@ app.post('/api/expenses', (req, res) => {
   });
 
   const chatData = storage.getChatData(chatId);
-  const calculation = calculateSettlement(chatData.expenses, chatData.peopleCount);
+  const members = storage.getMembers().map(m => m.name);
+  const calculation = calculateSettlement(chatData.expenses, chatData.peopleCount, members);
+
+  // Barcha a'zolarga Telegram orqali xabarnoma tarqatish
+  if (botModule && botModule.broadcastNewExpense) {
+    botModule.broadcastNewExpense(exp).catch(err => console.warn('Broadcast error:', err.message));
+  }
 
   res.json({
     success: true,
@@ -105,14 +114,51 @@ app.post('/api/settings', (req, res) => {
 });
 
 // POST: Archive current month and start new
-app.post('/api/archive', (req, res) => {
+app.post('/api/archive', async (req, res) => {
   const chatId = req.body.chatId || DEFAULT_CHAT;
-  const archived = storage.archiveMonth(chatId);
+  let report = null;
+
+  if (botModule && botModule.handleNewMonth) {
+    report = await botModule.handleNewMonth();
+  } else {
+    storage.archiveMonth(chatId);
+  }
 
   res.json({
     success: true,
-    archived
+    report
   });
+});
+
+// GET: Members list
+app.get('/api/members', (req, res) => {
+  const members = storage.getMembers();
+  const chatData = storage.getChatData('main');
+  const calc = calculateSettlement(chatData.expenses, chatData.peopleCount, members.map(m => m.name));
+
+  res.json({
+    success: true,
+    members,
+    spentMap: calc.spentMap || {},
+    perPersonShare: calc.perPersonShare || 0
+  });
+});
+
+// POST: Add new member
+app.post('/api/members', (req, res) => {
+  const { name } = req.body;
+  if (!name || !name.trim()) {
+    return res.status(400).json({ success: false, message: 'Ism kiritilishi shart.' });
+  }
+  const member = storage.addMember(name);
+  res.json({ success: true, member });
+});
+
+// DELETE: Remove member
+app.delete('/api/members/:name', (req, res) => {
+  const { name } = req.params;
+  const removed = storage.removeMember(decodeURIComponent(name));
+  res.json({ success: true, removed });
 });
 
 // GET: History of archived months
