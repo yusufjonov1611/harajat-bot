@@ -160,6 +160,103 @@ class Storage {
     chat.expenses = [];
     this.save();
   }
+
+  registerChat(chatId, info = {}) {
+    if (!chatId) return;
+    const chat = this.getChatData('main');
+    if (!chat.subscribers) chat.subscribers = {};
+    const idStr = String(chatId);
+    chat.subscribers[idStr] = {
+      id: idStr,
+      name: info.name || 'A\'zo',
+      type: info.type || 'private',
+      updatedAt: new Date().toISOString()
+    };
+    this.save();
+  }
+
+  getSubscribers() {
+    const chat = this.getChatData('main');
+    return chat.subscribers || {};
+  }
+
+  getMembers() {
+    const chat = this.getChatData('main');
+    const membersMap = new Map();
+
+    // 1. Bot orqali ro'yxatdan o'tgan foydalanuvchilar (Subscribers)
+    if (chat.subscribers) {
+      for (const [id, sub] of Object.entries(chat.subscribers)) {
+        if (sub.name) {
+          membersMap.set(sub.name.trim(), {
+            id: id,
+            name: sub.name.trim(),
+            telegramId: id,
+            type: sub.type || 'user'
+          });
+        }
+      }
+    }
+
+    // 2. Harajatlarda ishtirok etgan a'zolar
+    if (chat.expenses) {
+      for (const exp of chat.expenses) {
+        if (exp.userName && !membersMap.has(exp.userName.trim())) {
+          membersMap.set(exp.userName.trim(), {
+            id: exp.userId || null,
+            name: exp.userName.trim(),
+            telegramId: exp.userId || null,
+            type: 'user'
+          });
+        }
+      }
+    }
+
+    // 3. Qo'lda qo'shilgan a'zolar (Custom members)
+    if (chat.customMembers && Array.isArray(chat.customMembers)) {
+      for (const m of chat.customMembers) {
+        const name = typeof m === 'string' ? m : m.name;
+        if (name && !membersMap.has(name.trim())) {
+          membersMap.set(name.trim(), {
+            id: null,
+            name: name.trim(),
+            telegramId: null,
+            type: 'user'
+          });
+        }
+      }
+    }
+
+    return Array.from(membersMap.values());
+  }
+
+  addMember(name) {
+    if (!name || !name.trim()) return null;
+    const chat = this.getChatData('main');
+    if (!chat.customMembers) chat.customMembers = [];
+    const trimmed = name.trim();
+    if (!chat.customMembers.includes(trimmed)) {
+      chat.customMembers.push(trimmed);
+      this.save();
+    }
+    return { name: trimmed };
+  }
+
+  removeMember(name) {
+    if (!name || !name.trim()) return false;
+    const chat = this.getChatData('main');
+    const trimmed = name.trim();
+    if (chat.customMembers) {
+      chat.customMembers = chat.customMembers.filter(m => m !== trimmed);
+    }
+    if (chat.subscribers) {
+      for (const [id, sub] of Object.entries(chat.subscribers)) {
+        if (sub.name === trimmed) delete chat.subscribers[id];
+      }
+    }
+    this.save();
+    return true;
+  }
 }
 
 module.exports = new Storage();
