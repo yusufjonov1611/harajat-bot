@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: harajat-web-app
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node src/server.js
+    envVars:
+      - key: PORT
+        value: 3000
