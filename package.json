@@ -1,0 +1,26 @@
+{
+  "name": "harajat-bot",
+  "version": "1.0.0",
+  "description": "Telegram harajatlarni teng taqsimlash va hisob-kitob qilish boti",
+  "main": "src/bot.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "bot": "node src/bot.js",
+    "web": "node src/server.js",
+    "cli": "node cli.js",
+    "test": "node test-calc.js"
+  },
+  "keywords": [
+    "telegram-bot",
+    "expense-splitter",
+    "harajat-bot"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.7",
+    "express": "^5.3.0",
+    "grammy": "^1.35.0"
+  }
+}
