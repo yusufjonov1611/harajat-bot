@@ -5,6 +5,13 @@ const path = require('path');
 const storage = require('./storage');
 const { calculateSettlement, formatMoney } = require('./calculator');
 
+// Telegram Botni parallel ishga tushirish
+try {
+  require('./bot');
+} catch (botErr) {
+  console.warn('Telegram bot yuklanishida ogohlantirish:', botErr.message);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
