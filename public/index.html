@@ -51,11 +51,15 @@
         </div>
         <div>
           <h1 class="text-lg font-bold text-slate-800 leading-tight">Harajat Bot</h1>
-          <p class="text-xs text-slate-500">Oylik chiqimlar & Hisob-kitob</p>
+          <p id="appSubtitle" class="text-xs text-slate-500">Oylik chiqimlar & Hisob-kitob</p>
         </div>
       </div>
 
       <div class="flex items-center space-x-2">
+        <div id="tgUserBadge" class="hidden items-center space-x-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-lg border border-emerald-200">
+          <i data-lucide="user-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+          <span id="tgUserName">Telegram</span>
+        </div>
         <button onclick="openNewMonthModal()" class="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200">
           <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
           <span>Yangi oy</span>
@@ -236,10 +240,50 @@
   </div>
 
   <script>
-    // Initialize Telegram WebApp if present
-    if (window.Telegram && window.Telegram.WebApp) {
-      window.Telegram.WebApp.ready();
-      window.Telegram.WebApp.expand();
+    // Initialize Telegram WebApp
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+      try {
+        tg.ready();
+        tg.expand();
+        tg.enableClosingConfirmation();
+      } catch (e) {
+        console.warn('Telegram WebApp init warning:', e);
+      }
+    }
+
+    // Chat ID aniqlash:
+    // 1. URL search query (?chatId=...)
+    // 2. Telegram WebApp initData (chat yoki user id)
+    // 3. Standart: 'web_global'
+    const urlParams = new URLSearchParams(window.location.search);
+    const currentChatId = urlParams.get('chatId') || 
+      (tg?.initDataUnsafe?.chat?.id ? String(tg.initDataUnsafe.chat.id) : 
+      (tg?.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : 'web_global'));
+
+    // Agar Telegram orqali ochilgan bo'lsa
+    if (tg?.initDataUnsafe?.user) {
+      const user = tg.initDataUnsafe.user;
+      const tgUserBadge = document.getElementById('tgUserBadge');
+      const tgUserName = document.getElementById('tgUserName');
+      const appSubtitle = document.getElementById('appSubtitle');
+
+      if (tgUserBadge && tgUserName) {
+        tgUserName.innerText = user.first_name || 'Telegram';
+        tgUserBadge.classList.remove('hidden');
+        tgUserBadge.classList.add('flex');
+      }
+
+      if (appSubtitle) {
+        appSubtitle.innerText = 'Telegram Mini App';
+        appSubtitle.className = 'text-xs text-emerald-600 font-medium';
+      }
+
+      // Default name inputni foydalanuvchi ismiga sozlash
+      const nameInput = document.getElementById('inputName');
+      if (nameInput && !nameInput.value) {
+        nameInput.value = user.first_name || '';
+      }
     }
 
     let currentData = {
@@ -263,7 +307,7 @@
 
     async function loadData() {
       try {
-        const res = await fetch('/api/expenses');
+        const res = await fetch(`/api/expenses?chatId=${encodeURIComponent(currentChatId)}`);
         const data = await res.json();
         if (data.success) {
           currentData = data;
@@ -421,12 +465,15 @@
         const res = await fetch('/api/expenses', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userName: name, amount, description: desc })
+          body: JSON.stringify({ chatId: currentChatId, userName: name, amount, description: desc })
         });
         const result = await res.json();
         if (result.success) {
           document.getElementById('inputAmount').value = '';
           document.getElementById('inputDesc').value = '';
+          if (tg?.HapticFeedback) {
+            tg.HapticFeedback.notificationOccurred('success');
+          }
           await loadData();
         } else {
           alert(result.message || 'Xatolik yuz berdi');
@@ -438,9 +485,12 @@
 
     async function deleteExpense(id) {
       try {
-        const res = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+        const res = await fetch(`/api/expenses/${id}?chatId=${encodeURIComponent(currentChatId)}`, { method: 'DELETE' });
         const result = await res.json();
         if (result.success) {
+          if (tg?.HapticFeedback) {
+            tg.HapticFeedback.impactOccurred('medium');
+          }
           await loadData();
         }
       } catch (err) {
@@ -455,10 +505,13 @@
         const res = await fetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ peopleCount: updated })
+          body: JSON.stringify({ chatId: currentChatId, peopleCount: updated })
         });
         const result = await res.json();
         if (result.success) {
+          if (tg?.HapticFeedback) {
+            tg.HapticFeedback.selectionChanged();
+          }
           await loadData();
         }
       } catch (err) {
@@ -480,9 +533,16 @@
 
     async function confirmNewMonth() {
       try {
-        const res = await fetch('/api/archive', { method: 'POST' });
+        const res = await fetch('/api/archive', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chatId: currentChatId })
+        });
         const result = await res.json();
         closeNewMonthModal();
+        if (tg?.HapticFeedback) {
+          tg.HapticFeedback.notificationOccurred('warning');
+        }
         await loadData();
       } catch (err) {
         console.error(err);
