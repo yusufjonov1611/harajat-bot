@@ -20,11 +20,37 @@ class Storage {
         this.data = JSON.parse(raw);
       } else {
         this.data = {};
-        this.save();
       }
+
+      // Barcha foydalanuvchilar bitta umumiy hisobda bo'lishini ta'minlash ('main')
+      if (!this.data['main']) {
+        this.data['main'] = {
+          expenses: [],
+          peopleCount: null,
+          members: {},
+          history: []
+        };
+      }
+
+      // Avvalgi web_global yoki alohida chatlardan ma'lumotlarni 'main' ga ko'chirish
+      for (const [key, val] of Object.entries(this.data)) {
+        if (key !== 'main' && val && Array.isArray(val.expenses)) {
+          for (const exp of val.expenses) {
+            if (!this.data['main'].expenses.some(e => e.id === exp.id)) {
+              this.data['main'].expenses.push(exp);
+            }
+          }
+          if (val.peopleCount && !this.data['main'].peopleCount) {
+            this.data['main'].peopleCount = val.peopleCount;
+          }
+        }
+      }
+      this.save();
     } catch (err) {
       console.error('Storage load error:', err);
-      this.data = {};
+      this.data = {
+        main: { expenses: [], peopleCount: null, members: {}, history: [] }
+      };
     }
   }
 
@@ -36,13 +62,14 @@ class Storage {
     }
   }
 
-  getChatData(chatId) {
-    const key = String(chatId);
+  getChatData(chatId = 'main') {
+    // Barcha a'zolar uchun yagona umumiy hisob-kitob xonasi
+    const key = 'main';
     if (!this.data[key]) {
       this.data[key] = {
         expenses: [],
         peopleCount: null,
-        members: {}, // { userId: userName }
+        members: {},
         history: []
       };
       this.save();
