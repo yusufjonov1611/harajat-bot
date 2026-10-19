@@ -53,26 +53,15 @@ npm run cli
 
 ---
 
-## 📱 Telegram Mini App (Web App)
-Bot ichida to'liq interaktiv Web App integratsiyasi mavjud:
-- **Tezkor ochish:** Klaviaturadagi `📱 Ilovani ochish` tugmasi yoki pastki chap burchakdagi **Menu Button** orqali.
-- **Sinxronizatsiya:** Botdagi harajatlar Web Appda, Web Appdagi harajatlar Botda bir vaqtda ko'rinadi (har bir guruh yoki chat alohida `chatId` orqali saqlanadi).
-- **Haptic Feedback:** Telegram mobil ilovasida tugmalar bosilganda tebranish (vibratsiya) effekti.
-- **Ismni avtomatik aniqlash:** Foydalanuvchi Telegram akkauntidagi ismi formaga avtomatik joylanadi.
-
----
-
 ## 📱 Bot buyruqlari
 
 | Buyruq | Tavsif |
 |---|---|
-| `/start` | Botni ishga tushirish, Mini App tugmasi va asosiy menyu |
-| `/app` yoki `/ilova` | Telegram Mini Appni ochish tugmasini olish |
+| `/start` | Botni ishga tushirish va asosiy menyu |
 | `70000 bozorlik` | Harajat qo'shish (ism xabar yuboruvchidan olinadi) |
 | `Ali 70000 go'sht` | Aniq ism bilan harajat qo'shish |
-| `/royxat` | Shu oydagi barcha harajatlar ro'yxati va Mini App havolasi |
-| `/hisob` yoki `/hisob 2` | Harajatlarni teng taqsimlash va hisobot |
+| `/royxat` | Shu oydagi barcha harajatlar ro'yxati va a'zolar bo'yicha jami summa |
+| `/hisob` yoki `/hisob 2` | Harajatlarni odamlar soniga bo'lib, kim kimga qancha berishini hisoblash |
 | `/odamlar 3` | Standart odamlar sonini belgilash |
 | `/bekor` | Oxirgi kiritilgan xarajatni o'chirish |
 | `/yangi_oy` | Oyni yakunlab, arxivlab, yangi oyni 0 dan boshlash |
-
