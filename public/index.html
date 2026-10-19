@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Harajat Bot - Oylik Chiqimlar & Taqsimlash</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen pb-20">
+
+  <!-- TOP HEADER -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200">
+    <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+          <i data-lucide="wallet" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-800 leading-tight">Harajat Bot</h1>
+          <p class="text-xs text-slate-500">Oylik chiqimlar & Hisob-kitob</p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button onclick="openNewMonthModal()" class="flex items-center space-x-1.5 px-3 py-1.5 text-xs font-semibold text-rose-600 bg-rose-50 hover:bg-rose-100 rounded-lg transition border border-rose-200">
+          <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+          <span>Yangi oy</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-3xl mx-auto px-4 py-6 space-y-6">
+
+    <!-- SUMMARY CARDS -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <!-- Card 1: Jami -->
+      <div class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-lg shadow-slate-900/10 relative overflow-hidden">
+        <div class="absolute -right-3 -bottom-3 text-white/5">
+          <i data-lucide="coins" class="w-24 h-24"></i>
+        </div>
+        <div class="text-slate-400 text-xs font-medium uppercase tracking-wider mb-1">Jami Harajat</div>
+        <div id="statTotal" class="text-2xl font-extrabold tracking-tight">0 so'm</div>
+        <div class="text-xs text-emerald-400 mt-2 flex items-center gap-1 font-medium">
+          <i data-lucide="activity" class="w-3 h-3"></i> Shu oydagi hisob
+        </div>
+      </div>
+
+      <!-- Card 2: Odamlar soni -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">Odamlar soni</span>
+          <i data-lucide="users" class="w-4 h-4 text-slate-400"></i>
+        </div>
+        <div class="flex items-center justify-between my-1">
+          <div id="statPeople" class="text-2xl font-extrabold text-slate-800">2 kishi</div>
+          <div class="flex items-center space-x-1">
+            <button onclick="changePeopleCount(-1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-700 transition active:scale-95">-</button>
+            <button onclick="changePeopleCount(1)" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center font-bold text-slate-700 transition active:scale-95">+</button>
+          </div>
+        </div>
+        <div class="text-xs text-slate-400">Teng taqsimlash uchun</div>
+      </div>
+
+      <!-- Card 3: 1 Kishiga -->
+      <div class="bg-white rounded-2xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between mb-1">
+          <span class="text-slate-500 text-xs font-medium uppercase tracking-wider">1 Kishiga ulush</span>
+          <i data-lucide="pie-chart" class="w-4 h-4 text-emerald-500"></i>
+        </div>
+        <div id="statPerPerson" class="text-2xl font-extrabold text-emerald-600">0 so'm</div>
+        <div class="text-xs text-slate-400">Har bir a'zoning hissasi</div>
+      </div>
+    </div>
+
+    <!-- KIM KIMGA BERISHI KERAK (DEBT SETTLEMENT HIGHLIGHT) -->
+    <div class="bg-white rounded-2xl border border-emerald-100 p-5 shadow-sm shadow-emerald-500/5 relative">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 rounded-xl bg-emerald-50 text-emerald-600">
+            <i data-lucide="arrow-left-right" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Kim kimga qancha berishi kerak?</h2>
+            <p class="text-xs text-slate-500">Teng hisob-kitob bo'yicha taqsimot</p>
+          </div>
+        </div>
+        <span id="settlementBadge" class="text-xs px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full font-semibold">Taqsimlandi</span>
+      </div>
+
+      <!-- Transactions list -->
+      <div id="transactionsContainer" class="space-y-2.5">
+        <!-- Rendered via JS -->
+      </div>
+
+      <!-- Breakdown by member -->
+      <div class="mt-5 pt-4 border-t border-slate-100">
+        <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">A'zolar hisoboti</div>
+        <div id="membersBreakdown" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- HARAJAT QO'SHISH FORMASI -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+      <div class="flex items-center space-x-2 mb-4">
+        <div class="p-2 rounded-xl bg-slate-100 text-slate-700">
+          <i data-lucide="plus-circle" class="w-5 h-5"></i>
+        </div>
+        <h2 class="text-base font-bold text-slate-800">Yangi harajat qo'shish</h2>
+      </div>
+
+      <form id="expenseForm" onsubmit="handleAddExpense(event)" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <!-- Ism -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Kim harajat qildi?</label>
+            <div class="relative">
+              <input type="text" id="inputName" required placeholder="Masalan: Ali yoki Vali"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-medium">
+            </div>
+            <!-- Quick names -->
+            <div id="quickNames" class="flex flex-wrap gap-1.5 mt-2">
+              <button type="button" onclick="setName('Ali')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700">Ali</button>
+              <button type="button" onclick="setName('Vali')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700">Vali</button>
+            </div>
+          </div>
+
+          <!-- Summa -->
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Summa (so'm)</label>
+            <div class="relative">
+              <input type="number" id="inputAmount" required min="100" step="100" placeholder="Masalan: 70000"
+                class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm font-medium">
+            </div>
+            <!-- Quick amounts -->
+            <div class="flex flex-wrap gap-1.5 mt-2">
+              <button type="button" onclick="setAmount(50000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700">+50k</button>
+              <button type="button" onclick="setAmount(70000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700">70k</button>
+              <button type="button" onclick="setAmount(100000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700">100k</button>
+              <button type="button" onclick="setAmount(200000)" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700">200k</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Izoh -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Nima uchun? (Izoh)</label>
+          <input type="text" id="inputDesc" placeholder="Bozorlik, go'sht, non, yo'lkira, kommunal..."
+            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 text-sm">
+        </div>
+
+        <button type="submit" id="btnSubmit"
+          class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white font-bold rounded-xl shadow-md shadow-emerald-600/20 transition flex items-center justify-center space-x-2">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Harajatni saqlash</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- HARAJATLAR RO'YXATI -->
+    <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center space-x-2">
+          <div class="p-2 rounded-xl bg-slate-100 text-slate-700">
+            <i data-lucide="receipt" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h2 class="text-base font-bold text-slate-800">Kiritilgan harajatlar</h2>
+            <p id="listCount" class="text-xs text-slate-500">0 ta qayd</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="expensesList" class="divide-y divide-slate-100">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL: YANGI OYNI BOSHLASH -->
+  <div id="newMonthModal" class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-150">
+      <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mx-auto">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <div class="text-center">
+        <h3 class="text-lg font-bold text-slate-800">Yangi oyni boshlaysizmi?</h3>
+        <p class="text-xs text-slate-500 mt-1">Joriy oydagi harajatlar arxivga saqlanadi va yangi oy hisobi 0 dan boshlanadi.</p>
+      </div>
+      <div class="flex space-x-2 pt-2">
+        <button onclick="closeNewMonthModal()" class="flex-1 py-2.5 rounded-xl border border-slate-200 font-semibold text-slate-700 hover:bg-slate-50 text-sm">
+          Bekor qilish
+        </button>
+        <button onclick="confirmNewMonth()" class="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-sm shadow-md shadow-rose-600/20">
+          Ha, yangilash
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Initialize Telegram WebApp if present
+    if (window.Telegram && window.Telegram.WebApp) {
+      window.Telegram.WebApp.ready();
+      window.Telegram.WebApp.expand();
+    }
+
+    let currentData = {
+      expenses: [],
+      peopleCount: 2,
+      calculation: null
+    };
+
+    function formatNumber(num) {
+      return Math.round(num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    }
+
+    function setName(name) {
+      document.getElementById('inputName').value = name;
+      document.getElementById('inputAmount').focus();
+    }
+
+    function setAmount(amount) {
+      document.getElementById('inputAmount').value = amount;
+    }
+
+    async function loadData() {
+      try {
+        const res = await fetch('/api/expenses');
+        const data = await res.json();
+        if (data.success) {
+          currentData = data;
+          renderUI();
+        }
+      } catch (err) {
+        console.error('Yuklash xatosi:', err);
+      }
+    }
+
+    function renderUI() {
+      const calc = currentData.calculation || {};
+      const expenses = currentData.expenses || [];
+      const peopleCount = currentData.peopleCount || (calc.peopleCount || 2);
+
+      // 1. Stats
+      document.getElementById('statTotal').innerText = formatNumber(calc.totalExpense) + " so'm";
+      document.getElementById('statPeople').innerText = peopleCount + " kishi";
+      document.getElementById('statPerPerson').innerText = formatNumber(calc.perPersonShare) + " so'm";
+      document.getElementById('listCount').innerText = expenses.length + " ta harajat";
+
+      // 2. Transactions (Kim kimga berishi kerak)
+      const txContainer = document.getElementById('transactionsContainer');
+      txContainer.innerHTML = '';
+
+      if (!calc.transactions || calc.transactions.length === 0) {
+        if (expenses.length === 0) {
+          txContainer.innerHTML = `
+            <div class="text-center py-6 text-slate-400 text-xs">
+              <i data-lucide="inbox" class="w-8 h-8 mx-auto mb-2 text-slate-300"></i>
+              Hali harajatlar kiritilmagan. Yuqoridagi formadan birinchi harajatni qo'shing.
+            </div>`;
+        } else {
+          txContainer.innerHTML = `
+            <div class="p-3 bg-emerald-50 rounded-xl text-emerald-800 text-xs font-semibold flex items-center gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-600"></i>
+              Hamma teng harajat qilgan! Hech kim hech kimga qarz emas.
+            </div>`;
+        }
+      } else {
+        calc.transactions.forEach(t => {
+          const div = document.createElement('div');
+          div.className = "flex items-center justify-between p-3.5 bg-gradient-to-r from-amber-50/60 to-emerald-50/60 border border-slate-200/80 rounded-xl shadow-xs";
+          div.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <div class="w-9 h-9 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xs">
+                ${t.from.substring(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <div class="text-sm font-bold text-slate-800">
+                  <span class="text-rose-600">${t.from}</span>
+                  <span class="text-slate-400 mx-1">➔</span>
+                  <span class="text-emerald-700">${t.to}</span>
+                </div>
+                <div class="text-[11px] text-slate-500">berishi kerak</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="text-sm font-extrabold text-emerald-700 font-mono">${formatNumber(t.amount)} so'm</div>
+              <span class="inline-block text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">Qarz to'lovi</span>
+            </div>
+          `;
+          txContainer.appendChild(div);
+        });
+      }
+
+      // 3. Members Breakdown
+      const mbContainer = document.getElementById('membersBreakdown');
+      mbContainer.innerHTML = '';
+      if (calc.spentMap) {
+        Object.entries(calc.spentMap).forEach(([name, spent]) => {
+          const diff = spent - (calc.perPersonShare || 0);
+          const isCreditor = diff > 0.01;
+          const isDebtor = diff < -0.01;
+
+          const card = document.createElement('div');
+          card.className = `p-2.5 rounded-xl border flex items-center justify-between text-xs ${
+            isCreditor ? 'bg-emerald-50/40 border-emerald-200' :
+            isDebtor ? 'bg-rose-50/40 border-rose-200' : 'bg-slate-50 border-slate-200'
+          }`;
+
+          card.innerHTML = `
+            <div>
+              <span class="font-bold text-slate-800">${name}</span>
+              <div class="text-[11px] text-slate-500">Sarfladi: ${formatNumber(spent)} so'm</div>
+            </div>
+            <div class="text-right font-semibold ${
+              isCreditor ? 'text-emerald-600' :
+              isDebtor ? 'text-rose-600' : 'text-slate-500'
+            }">
+              ${isCreditor ? '+' + formatNumber(diff) + " so'm (haqdor)" :
+                isDebtor ? '-' + formatNumber(-diff) + " so'm (qarzdor)" : 'Teng'}
+            </div>
+          `;
+          mbContainer.appendChild(card);
+        });
+
+        // Update Quick Names chips
+        const quickNamesDiv = document.getElementById('quickNames');
+        const names = Object.keys(calc.spentMap);
+        if (names.length > 0) {
+          quickNamesDiv.innerHTML = names.map(n => 
+            `<button type="button" onclick="setName('${n}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700">${n}</button>`
+          ).join('');
+        }
+      }
+
+      // 4. Expenses List
+      const listContainer = document.getElementById('expensesList');
+      listContainer.innerHTML = '';
+      if (expenses.length === 0) {
+        listContainer.innerHTML = `
+          <div class="text-center py-8 text-slate-400 text-xs">
+            Harajatlar ro'yxati bo'sh.
+          </div>`;
+      } else {
+        [...expenses].reverse().forEach(exp => {
+          const item = document.createElement('div');
+          item.className = "py-3 flex items-center justify-between group";
+          item.innerHTML = `
+            <div class="flex items-center space-x-3">
+              <div class="w-8 h-8 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center font-bold text-xs">
+                ${exp.userName ? exp.userName[0].toUpperCase() : 'H'}
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-800">${exp.userName}</div>
+                <div class="text-[11px] text-slate-500">${exp.description || 'Harajat'}</div>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
+              <div class="text-right">
+                <div class="text-xs font-extrabold text-slate-900">${formatNumber(exp.amount)} so'm</div>
+                <div class="text-[10px] text-slate-400">${new Date(exp.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+              </div>
+              <button onclick="deleteExpense('${exp.id}')" title="O'chirish"
+                class="w-7 h-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          `;
+          listContainer.appendChild(item);
+        });
+      }
+
+      lucide.createIcons();
+    }
+
+    async function handleAddExpense(e) {
+      e.preventDefault();
+      const name = document.getElementById('inputName').value;
+      const amount = document.getElementById('inputAmount').value;
+      const desc = document.getElementById('inputDesc').value;
+
+      try {
+        const res = await fetch('/api/expenses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userName: name, amount, description: desc })
+        });
+        const result = await res.json();
+        if (result.success) {
+          document.getElementById('inputAmount').value = '';
+          document.getElementById('inputDesc').value = '';
+          await loadData();
+        } else {
+          alert(result.message || 'Xatolik yuz berdi');
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function deleteExpense(id) {
+      try {
+        const res = await fetch(`/api/expenses/${id}`, { method: 'DELETE' });
+        const result = await res.json();
+        if (result.success) {
+          await loadData();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function changePeopleCount(delta) {
+      let current = currentData.peopleCount || 2;
+      const updated = Math.max(1, current + delta);
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ peopleCount: updated })
+        });
+        const result = await res.json();
+        if (result.success) {
+          await loadData();
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function openNewMonthModal() {
+      const modal = document.getElementById('newMonthModal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeNewMonthModal() {
+      const modal = document.getElementById('newMonthModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    async function confirmNewMonth() {
+      try {
+        const res = await fetch('/api/archive', { method: 'POST' });
+        const result = await res.json();
+        closeNewMonthModal();
+        await loadData();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    // Initial load
+    loadData();
+  </script>
+</body>
+</html>
