@@ -252,14 +252,8 @@
       }
     }
 
-    // Chat ID aniqlash:
-    // 1. URL search query (?chatId=...)
-    // 2. Telegram WebApp initData (chat yoki user id)
-    // 3. Standart: 'web_global'
-    const urlParams = new URLSearchParams(window.location.search);
-    const currentChatId = urlParams.get('chatId') || 
-      (tg?.initDataUnsafe?.chat?.id ? String(tg.initDataUnsafe.chat.id) : 
-      (tg?.initDataUnsafe?.user?.id ? String(tg.initDataUnsafe.user.id) : 'web_global'));
+    // Barcha a'zolar uchun bitta yagona umumiy hisob-kitob xonasi ('main')
+    const currentChatId = 'main';
 
     // Agar Telegram orqali ochilgan bo'lsa
     if (tg?.initDataUnsafe?.user) {
@@ -551,6 +545,11 @@
 
     // Initial load
     loadData();
+
+    // Jonli sinxronizatsiya: boshqalar harajat yozsa ekranda avtomatik chiqishi uchun (har 3 soniyada)
+    setInterval(() => {
+      loadData();
+    }, 3000);
   </script>
 </body>
 </html>
