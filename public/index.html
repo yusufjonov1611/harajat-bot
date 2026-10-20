@@ -332,12 +332,53 @@
       document.getElementById('inputAmount').value = amount;
     }
 
+    // LocalStorage orqali xotirada saqlash (qayta kirganda zudlik bilan ko'rsatish)
+    function loadCache() {
+      try {
+        const cached = localStorage.getItem('harajat_cache');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.success) {
+            currentData = parsed;
+            renderUI();
+          }
+        }
+      } catch (e) {
+        console.warn('Cache load error:', e);
+      }
+    }
+
     async function loadData() {
       try {
-        const res = await fetch(`/api/expenses?chatId=${encodeURIComponent(currentChatId)}`);
+        // t= timestamp WebView keshini buzish uchun
+        const res = await fetch(`/api/expenses?t=${Date.now()}`);
         const data = await res.json();
-        if (data.success) {
+        if (data && data.success) {
+          // Agar serverda harajatlar kamayib ketgan bo'lsa (masalan server qayta yuklangan bo'lsa),
+          // lokal keshdagi ma'lumotlarni serverga qayta sinxronizatsiya qilish
+          const cached = localStorage.getItem('harajat_cache');
+          if (cached) {
+            try {
+              const parsedCache = JSON.parse(cached);
+              const localExpenses = parsedCache.expenses || [];
+              const serverExpenses = data.expenses || [];
+              if (localExpenses.length > serverExpenses.length && serverExpenses.length === 0) {
+                // Serverni qayta to'ldirish
+                console.log('Server yangilangani aniqlandi, keshdagi ma\'lumotlar tiklanmoqda...');
+                await fetch('/api/sync', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ expenses: localExpenses })
+                });
+                return loadData();
+              }
+            } catch (syncErr) {
+              console.warn('Sync error:', syncErr);
+            }
+          }
+
           currentData = data;
+          localStorage.setItem('harajat_cache', JSON.stringify(data));
           renderUI();
         }
       } catch (err) {
@@ -610,7 +651,8 @@
       }
     }
 
-    // Initial load
+    // Initial load: avval keshdan tez yuklash, so'ngra serverdan yangilash
+    loadCache();
     loadData();
 
     // Jonli sinxronizatsiya: boshqalar harajat yozsa ekranda avtomatik chiqishi uchun (har 3 soniyada)
