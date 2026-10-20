@@ -2,17 +2,37 @@
   "main": {
     "expenses": [
       {
-        "id": "1",
-        "userName": "Ali",
-        "amount": 70000,
-        "description": "Bozorlik"
+        "id": "mvgutvg8zi5nj",
+        "userId": null,
+        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+        "amount": 82000,
+        "description": "Harajat",
+        "createdAt": "2026-10-20T15:45:03.608Z"
       },
       {
-        "id": "2",
-        "userName": "Vali",
-        "amount": 100000,
-        "description": "Supermarket"
+        "id": "mvguu4lu243gb",
+        "userId": null,
+        "userName": "Ali",
+        "amount": 32000,
+        "description": "Harajat",
+        "createdAt": "2026-10-20T15:45:15.474Z"
+      },
+      {
+        "id": "mvguufi12a0gn",
+        "userId": null,
+        "userName": "Ali",
+        "amount": 119000,
+        "description": "Harajat",
+        "createdAt": "2026-10-20T15:45:29.593Z"
       }
-    ]
+    ],
+    "peopleCount": null,
+    "members": {},
+    "customMembers": [
+      "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+      "Ali"
+    ],
+    "subscribers": {},
+    "history": []
   }
 }
