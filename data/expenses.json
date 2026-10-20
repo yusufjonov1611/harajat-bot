@@ -1,25 +1,18 @@
 {
-  "web_global": {
+  "main": {
     "expenses": [
       {
-        "id": "mvfkl2dmre0gr",
-        "userId": null,
+        "id": "1",
         "userName": "Ali",
         "amount": 70000,
-        "description": "Bozorlik",
-        "createdAt": "2026-10-19T18:10:30.346Z"
+        "description": "Bozorlik"
       },
       {
-        "id": "mvfkl2fo4cm9u",
-        "userId": null,
+        "id": "2",
         "userName": "Vali",
         "amount": 100000,
-        "description": "Supermarket",
-        "createdAt": "2026-10-19T18:10:30.420Z"
+        "description": "Supermarket"
       }
-    ],
-    "peopleCount": null,
-    "members": {},
-    "history": []
+    ]
   }
 }
