@@ -165,34 +165,45 @@ bot.command('start', async (ctx) => {
   const chatId = ctx.chat.id;
   const appUrl = getChatWebAppUrl(chatId);
 
-  let inlineKb = null;
+  const chatData = storage.getChatData('main');
+  const expenses = chatData.expenses || [];
+  const members = storage.getMembers().map(m => m.name);
+  const calc = calculateSettlement(expenses, chatData.peopleCount, members);
+
+  let inlineKb = new InlineKeyboard();
   if (appUrl) {
-    inlineKb = new InlineKeyboard().webApp('🚀 Mini Appda ochish', appUrl);
+    inlineKb.webApp('🚀 Mini Appda ochish', appUrl).row();
+  }
+  inlineKb.text('📋 Ro\'yxatni ko\'rish', 'view_list').text('🧮 Hisob-kitob', 'calc_settle');
+
+  let welcomeText = `👋 Assalomu alaykum, <b>${name}</b>!\n\n` +
+    `🤖 <b>Harajat Bot</b>iga xush kelibsiz!\n\n`;
+
+  if (expenses.length > 0) {
+    welcomeText += `📊 <b>Joriy oylik faol hisob:</b>\n` +
+      `💰 <b>Jami harajat:</b> ${formatMoney(calc.totalExpense)} so'm (${expenses.length} ta yozuv)\n` +
+      `👥 <b>1 kishiga ulush:</b> ${formatMoney(calc.perPersonShare)} so'm\n\n`;
+
+    if (calc.transactions && calc.transactions.length > 0) {
+      welcomeText += `🤝 <b>Qarzlar taqsimoti:</b>\n`;
+      calc.transactions.slice(0, 3).forEach(t => {
+        welcomeText += `👉 <b>${t.from}</b> ➔ <b>${t.to}</b>ga: <b>${formatMoney(t.amount)} so'm</b>\n`;
+      });
+      welcomeText += `\n`;
+    }
   }
 
-  const welcomeText = `👋 Assalomu alaykum, <b>${name}</b>!\n\n` +
-    `🤖 <b>Harajat Bot</b>iga xush kelibsiz!\n` +
-    `Bu bot orqali siz kvartiradoshlar, do'stlar yoki jamoa bilan birgalikdagi harajatlarni oson hisob-kitob qilishingiz mumkin.\n\n` +
-    `💡 <b>Qanday ishlatiladi?</b>\n` +
-    `1. Harajat yozish uchun shunchaki yozing:\n` +
-    `   • <code>70000 bozorlik</code>\n` +
-    `   • <code>Ali 70000 go'sht</code>\n` +
-    `   • <code>Vali 100k mevalar</code>\n\n` +
-    `2. Oy oxirida <b>🧮 Hisoblash</b> tugmasini bosing yoki <code>/hisob 2</code> deb yozing.\n` +
-    `   Bot jami summani kishi soniga bo'lib, kim kimga qancha pul berishi kerakligini aniq aytadi!\n\n` +
-    `📱 <i>Pastdagi <b>"Ilovani ochish"</b> tugmasi orqali hisoblarni qulay grafik va jadval ko'rinishida ko'rishingiz mumkin!</i>\n\n` +
-    `👥 <i>Botni guruhga qo'shib ishlatsangiz yanada qulay bo'ladi!</i>`;
+  welcomeText += `💡 <b>Yangi harajat qo'shish:</b>\n` +
+    `Shunchaki xabar yozing: <code>70000 bozorlik</code> yoki <code>Ali 70000 go'sht</code>`;
 
   await ctx.reply(welcomeText, {
     parse_mode: 'HTML',
-    reply_markup: inlineKb ? inlineKb : getMainKeyboard(chatId)
+    reply_markup: inlineKb
   });
 
-  if (inlineKb) {
-    await ctx.reply('Menyudan foydalanishingiz mumkin:', {
-      reply_markup: getMainKeyboard(chatId)
-    });
-  }
+  await ctx.reply('Asosiy menyu:', {
+    reply_markup: getMainKeyboard(chatId)
+  });
 });
 
 // /help komandasi
@@ -316,11 +327,12 @@ bot.hears('📋 Harajatlar ro\'yxati', handleList);
 
 // /hisob komandasi va tugmasi
 async function handleCalculate(ctx, explicitCount = null) {
-  const chatData = storage.getChatData(ctx.chat.id);
-  const expenses = chatData.expenses;
+  const chatData = storage.getChatData('main');
+  const expenses = chatData.expenses || [];
 
   if (expenses.length === 0) {
-    return ctx.reply('📭 Hali harajatlar kiritilmagan. Hisob-kitob qilish uchun avval harajat yozing.', {
+    return ctx.reply('📭 Hali harajatlar kiritilmagan. Hisob-kitob qilish uchun avval harajat yozing.\nMasalan: <code>70000 bozorlik</code>', {
+      parse_mode: 'HTML',
       reply_markup: getMainKeyboard(ctx.chat.id)
     });
   }
@@ -330,8 +342,8 @@ async function handleCalculate(ctx, explicitCount = null) {
     peopleCount = chatData.peopleCount;
   }
 
-  // Agar odamlar soni umuman ma'lum bo'lmasa, so'rash yoki mavjudlar bo'yicha chiqarish
-  const result = calculateSettlement(expenses, peopleCount);
+  const members = storage.getMembers().map(m => m.name);
+  const result = calculateSettlement(expenses, peopleCount, members);
   const report = formatSettlementReport(result);
 
   const inlineKb = new InlineKeyboard();
@@ -369,7 +381,7 @@ bot.command('odamlar', async (ctx) => {
   if (match.length >= 2) {
     const num = parseInt(match[1], 10);
     if (num > 0) {
-      storage.setPeopleCount(ctx.chat.id, num);
+      storage.setPeopleCount('main', num);
       return ctx.reply(`✅ Odamlar soni muvaffaqiyatli saqlandi: <b>${num} kishi</b>.\nEndi hisob-kitob shu songa bo'linadi.`, {
         parse_mode: 'HTML'
       });
@@ -380,7 +392,7 @@ bot.command('odamlar', async (ctx) => {
 });
 
 bot.hears('👥 Odamlar soni', async (ctx) => {
-  const chatData = storage.getChatData(ctx.chat.id);
+  const chatData = storage.getChatData('main');
   const current = chatData.peopleCount ? `${chatData.peopleCount} kishi` : "belgilanmagan (avtomatik)";
   userState[ctx.chat.id] = { action: 'awaiting_people_count' };
   await ctx.reply(
@@ -392,12 +404,16 @@ bot.hears('👥 Odamlar soni', async (ctx) => {
 
 // Bekor qilish (oxirgisini o'chirish)
 async function handleUndo(ctx) {
-  const removed = storage.deleteLastExpense(ctx.chat.id);
+  const removed = storage.deleteLastExpense('main');
   if (!removed) {
     return ctx.reply('📭 O\'chirish uchun hech qanday harajat topilmadi.');
   }
   await ctx.reply(
     `🗑 <b>Oxirgi harajat o'chirildi:</b>\n` +
+    `👤 ${removed.userName}: ${formatMoney(removed.amount)} so'm (${removed.description})`,
+    { parse_mode: 'HTML' }
+  );
+}
     `👤 ${removed.userName}: ${formatMoney(removed.amount)} so'm (${removed.description})`,
     { parse_mode: 'HTML' }
   );
@@ -466,7 +482,7 @@ bot.hears('🔄 Yangi oyni boshlash', handleNewMonth);
 // Inline tugmalar bilan ishlash
 bot.callbackQuery(/delete_(.+)/, async (ctx) => {
   const expId = ctx.match[1];
-  const chatData = storage.getChatData(ctx.chat.id);
+  const chatData = storage.getChatData('main');
   const index = chatData.expenses.findIndex(e => e.id === expId);
 
   if (index !== -1) {
@@ -480,6 +496,16 @@ bot.callbackQuery(/delete_(.+)/, async (ctx) => {
   } else {
     await ctx.answerCallbackQuery({ text: 'Bu harajat allaqachon o\'chirilgan yoki topilmadi.' });
   }
+});
+
+bot.callbackQuery('view_list', async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await handleList(ctx);
+});
+
+bot.callbackQuery('calc_settle', async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await handleCalculate(ctx);
 });
 
 bot.callbackQuery('set_people', async (ctx) => {
@@ -513,7 +539,7 @@ bot.on('message:text', async (ctx) => {
   if (userState[chatId]?.action === 'awaiting_people_count') {
     const num = parseInt(text, 10);
     if (!isNaN(num) && num > 0) {
-      storage.setPeopleCount(chatId, num);
+      storage.setPeopleCount('main', num);
       delete userState[chatId];
       await ctx.reply(`✅ Odamlar soni: <b>${num} kishi</b> qilib belgilandi.`, {
         parse_mode: 'HTML'
@@ -527,9 +553,9 @@ bot.on('message:text', async (ctx) => {
   // Agar foydalanuvchi to'g'ridan-to'g'ri faqat raqam yozsa (masalan: "2") va xarajatlar mavjud bo'lsa
   const onlyNumber = parseInt(text, 10);
   if (/^\d+$/.test(text) && onlyNumber <= 50) {
-    const chatData = storage.getChatData(chatId);
+    const chatData = storage.getChatData('main');
     if (chatData.expenses.length > 0) {
-      storage.setPeopleCount(chatId, onlyNumber);
+      storage.setPeopleCount('main', onlyNumber);
       return handleCalculate(ctx, onlyNumber);
     }
   }
