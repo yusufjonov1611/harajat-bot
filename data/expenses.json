@@ -88,6 +88,14 @@
         "amount": 80000,
         "description": "Skavarodka",
         "createdAt": "2026-10-30T09:19:34.665Z"
+      },
+      {
+        "id": "mvv0cui8sfwk7",
+        "userId": null,
+        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+        "amount": 20000,
+        "description": "qalampir",
+        "createdAt": "2026-10-30T13:28:33.392Z"
       }
     ],
     "peopleCount": 3,
