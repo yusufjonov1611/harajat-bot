@@ -104,6 +104,14 @@
         "amount": 43000,
         "description": "chuchvara",
         "createdAt": "2026-10-30T13:28:51.286Z"
+      },
+      {
+        "id": "mvv0i8mbdhrqp",
+        "userId": null,
+        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+        "amount": 2000,
+        "description": "qurt",
+        "createdAt": "2026-10-30T13:32:44.963Z"
       }
     ],
     "peopleCount": 3,
