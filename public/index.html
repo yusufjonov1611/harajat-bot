@@ -455,13 +455,19 @@
           mbContainer.appendChild(card);
         });
 
-        // Update Quick Names chips
+        // Update Quick Names chips (Safe DOM creation)
         const quickNamesDiv = document.getElementById('quickNames');
-        const names = Object.keys(calc.spentMap);
+        const names = Object.keys(calc.spentMap || {});
         if (names.length > 0) {
-          quickNamesDiv.innerHTML = names.map(n => 
-            `<button type="button" onclick="setName('${n}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700">${n}</button>`
-          ).join('');
+          quickNamesDiv.innerHTML = '';
+          names.forEach(n => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'px-2.5 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-medium text-slate-700 transition active:scale-95';
+            btn.innerText = n;
+            btn.onclick = () => setName(n);
+            quickNamesDiv.appendChild(btn);
+          });
         }
       }
 
@@ -505,31 +511,80 @@
       lucide.createIcons();
     }
 
+    let isSubmitting = false;
+
     async function handleAddExpense(e) {
       e.preventDefault();
-      const name = document.getElementById('inputName').value;
-      const amount = document.getElementById('inputAmount').value;
-      const desc = document.getElementById('inputDesc').value;
+      if (isSubmitting) return;
+
+      const nameInput = document.getElementById('inputName');
+      const amountInput = document.getElementById('inputAmount');
+      const descInput = document.getElementById('inputDesc');
+      const btnSubmit = document.getElementById('btnSubmit');
+
+      const name = (nameInput.value || '').trim();
+      const amount = parseFloat(amountInput.value);
+      const desc = (descInput.value || 'Harajat').trim();
+
+      if (!name || isNaN(amount) || amount <= 0) {
+        alert("Iltimos, ism va to'g'ri summani kiriting!");
+        return;
+      }
+
+      isSubmitting = true;
+      const originalBtnHtml = btnSubmit.innerHTML;
+      btnSubmit.disabled = true;
+      btnSubmit.className = btnSubmit.className.replace('bg-emerald-600 hover:bg-emerald-700', 'bg-slate-400 cursor-not-allowed opacity-80');
+      btnSubmit.innerHTML = `
+        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+        </svg>
+        <span>Saqlanmoqda...</span>
+      `;
 
       try {
         const res = await fetch('/api/expenses', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chatId: currentChatId, userName: name, amount, description: desc })
+          body: JSON.stringify({ userName: name, amount, description: desc })
         });
         const result = await res.json();
+
         if (result.success) {
-          document.getElementById('inputAmount').value = '';
-          document.getElementById('inputDesc').value = '';
+          amountInput.value = '';
+          descInput.value = '';
+
+          // Instant update: yangi harajatni zudlik bilan ekranga chiqarish
+          if (result.expense) {
+            currentData.expenses = currentData.expenses || [];
+            if (!currentData.expenses.some(x => x.id === result.expense.id)) {
+              currentData.expenses.push(result.expense);
+            }
+            if (result.calculation) {
+              currentData.calculation = result.calculation;
+            }
+            renderUI();
+          }
+
           if (tg?.HapticFeedback) {
             tg.HapticFeedback.notificationOccurred('success');
           }
+
+          // Serverdan ham to'liq yangilab olish
           await loadData();
         } else {
           alert(result.message || 'Xatolik yuz berdi');
         }
       } catch (err) {
-        console.error(err);
+        console.error('Harajat saqlash xatosi:', err);
+        alert('Server bilan bog\'lanishda xatolik. Qaytadan urinib ko\'ring.');
+      } finally {
+        isSubmitting = false;
+        btnSubmit.disabled = false;
+        btnSubmit.className = btnSubmit.className.replace('bg-slate-400 cursor-not-allowed opacity-80', 'bg-emerald-600 hover:bg-emerald-700');
+        btnSubmit.innerHTML = originalBtnHtml;
+        lucide.createIcons();
       }
     }
 
