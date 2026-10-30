@@ -27,6 +27,19 @@ function getChatWebAppUrl() {
 }
 
 // Har qanday a'zo yozganda yoki start bosganda uni bildirishnomalar ro'yxatiga qo'shish
+
+// Guruhga qo'shilganda yoki huquq berilganda guruh chat ID sini ro'yxatga olish
+bot.on('my_chat_member', async (ctx) => {
+  if (ctx.chat?.id) {
+    storage.registerChat(ctx.chat.id, {
+      name: ctx.chat.title || 'Guruh',
+      type: ctx.chat.type,
+      title: ctx.chat.title || null
+    });
+    console.log(`👥 Bot guruhga qo'shildi va ro'yxatga olindi: ${ctx.chat.title} (${ctx.chat.id})`);
+  }
+});
+
 bot.use(async (ctx, next) => {
   if (ctx.chat?.id) {
     storage.registerChat(ctx.chat.id, {
@@ -39,38 +52,46 @@ bot.use(async (ctx, next) => {
 
 // Barcha sheriklarga yangi harajat haqida bildirishnoma tarqatish
 async function broadcastNewExpense(exp, sourceChatId = null) {
-  if (!token || token === 'YOUR_TELEGRAM_BOT_TOKEN_HERE') return;
+  if (!token || token === 'YOUR_TELEGRAM_BOT_TOKEN_HERE') {
+    console.warn('BOT_TOKEN mavjud emas, xabarnoma yuborilmadi.');
+    return;
+  }
 
   const chatData = storage.getChatData('main');
-  const calc = calculateSettlement(chatData.expenses, chatData.peopleCount);
+  const members = storage.getMembers().map(m => m.name);
+  const calc = calculateSettlement(chatData.expenses, chatData.peopleCount, members);
   const peopleCount = chatData.peopleCount || (calc.peopleCount || Object.keys(calc.spentMap).length || 2);
   const perPerson = calc.perPersonShare || Math.round(calc.totalExpense / peopleCount);
 
   const text =
-    `🔔 <b>YANGI HARAJAT QO'SHILDI!</b>\n\n` +
+    `💸 <b>YANGI HARAJAT QILINDI!</b>\n\n` +
     `👤 <b>Kim:</b> ${exp.userName}\n` +
     `💰 <b>Summa:</b> ${formatMoney(exp.amount)} so'm\n` +
-    `📝 <b>Izoh:</b> ${exp.description}\n` +
+    `📝 <b>Nima uchun:</b> ${exp.description}\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
-    `📊 <b>Jami oylik harajat:</b> ${formatMoney(calc.totalExpense)} so'm\n` +
-    `👥 <b>1 kishiga tushgan ulush:</b> ${formatMoney(perPerson)} so'm (${peopleCount} kishi)\n\n` +
-    `💡 <i>Hisob-kitobingiz avtomatik yangilandi.</i>`;
+    `📊 <b>Oylik jami harajat:</b> ${formatMoney(calc.totalExpense)} so'm\n` +
+    `👥 <b>1 kishiga ulush:</b> ${formatMoney(perPerson)} so'm (${peopleCount} kishi)\n\n` +
+    `💡 <i>Hisob-kitob avtomatik yangilandi.</i>`;
 
   const inlineKb = new InlineKeyboard();
   if (webAppUrl) {
-    inlineKb.webApp('📊 Mini Appda ko\'rish', webAppUrl);
+    inlineKb.webApp('📱 Ilovada ko\'rish', webAppUrl);
   }
 
   const subscribers = storage.getSubscribers();
-  for (const [subId] of Object.entries(subscribers)) {
+  const subIds = Object.keys(subscribers);
+  console.log(`📢 Bildirishnoma tarqatilmoqda (${subIds.length} ta chatga)...`);
+
+  for (const [subId, sub] of Object.entries(subscribers)) {
     if (sourceChatId && String(subId) === String(sourceChatId)) continue;
     try {
       await bot.api.sendMessage(subId, text, {
         parse_mode: 'HTML',
         reply_markup: inlineKb
       });
+      console.log(`  ✓ Bildirishnoma yuborildi: ${subId} (${sub.name || 'Chat'})`);
     } catch (err) {
-      console.warn(`Bildirishnoma yuborishda xatolik (${subId}):`, err.message);
+      console.warn(`  ✗ Bildirishnoma yuborishda xatolik (${subId}):`, err.message);
     }
   }
 }
@@ -362,6 +383,14 @@ async function handleCalculate(ctx, explicitCount = null) {
   });
 }
 
+
+bot.command(['yangilash', 'refresh'], async (ctx) => {
+  await handleCalculate(ctx);
+});
+bot.hears(['🔄 Yangilash', 'Yangilash', 'yangilash'], async (ctx) => {
+  await handleCalculate(ctx);
+});
+
 bot.command('hisob', async (ctx) => {
   const match = ctx.message.text.trim().split(/\s+/);
   let count = null;
@@ -414,11 +443,6 @@ async function handleUndo(ctx) {
     { parse_mode: 'HTML' }
   );
 }
-    `👤 ${removed.userName}: ${formatMoney(removed.amount)} so'm (${removed.description})`,
-    { parse_mode: 'HTML' }
-  );
-}
-
 bot.command('bekor', handleUndo);
 bot.hears('↩️ Oxirgisini bekor qilish', handleUndo);
 
