@@ -1,6 +1,15 @@
 {
   "main": {
-    "expenses": [],
+    "expenses": [
+      {
+        "id": "mvynwi9qo5rcj",
+        "userId": null,
+        "userName": "Ali",
+        "amount": 86000,
+        "description": "Tuxum non, yogʻ",
+        "createdAt": "2026-11-02T02:51:00.350Z"
+      }
+    ],
     "peopleCount": 3,
     "members": {},
     "customMembers": [
