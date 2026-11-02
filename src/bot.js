@@ -119,15 +119,16 @@ async function broadcastMonthEnd(reportText) {
 }
 
 // Asosiy menyu klaviaturasi
-function getMainKeyboard() {
+function getMainKeyboard(chatId = null) {
   const kb = new Keyboard();
   if (webAppUrl) {
     kb.webApp('📱 Ilovani ochish (Mini App)', webAppUrl).row();
   }
   return kb
     .text('➕ Harajat yozish').text('📋 Ro\'yxat').row()
-    .text('🧮 Hisoblash (Taqsimlash)').text('👥 A\'zolar ro\'yxati').row()
-    .text('↩️ Oxirgisini bekor qilish').text('🔄 Yangi oyni boshlash')
+    .text('🧮 Hisoblash (Taqsimlash)').text('🔄 Yangilash').row()
+    .text('👥 A\'zolar ro\'yxati').text('↩️ Oxirgisini bekor qilish').row()
+    .text('🏁 Yangi oyni boshlash')
     .resized();
 }
 
@@ -265,14 +266,16 @@ bot.command(['app', 'webapp', 'ilova'], async (ctx) => {
 bot.command(['harajat', 'qosh', 'xarajat'], async (ctx) => {
   const text = ctx.message.text;
   const defaultName = ctx.from?.first_name || 'Foydalanuvchi';
-  const parsed = parseExpenseMessage(text, defaultName);
+  const members = storage.getMembers().map(m => m.name);
+  const parsed = parseExpenseMessage(text, defaultName, members);
 
   if (!parsed) {
     return ctx.reply(
       `❌ Noto'g'ri format!\n` +
       `Masalan bunday yozing:\n` +
-      `<code>/harajat 70000 go'sht</code> yoki\n` +
-      `<code>/harajat Ali 70000 go'sht</code>`,
+      `• <code>70000 bozorlik</code>\n` +
+      `• <code>Ali 70000 go'sht</code>\n` +
+      `• <code>non 15000</code>`,
       { parse_mode: 'HTML' }
     );
   }
@@ -501,7 +504,7 @@ async function handleNewMonth(ctx = null) {
 }
 
 bot.command('yangi_oy', handleNewMonth);
-bot.hears('🔄 Yangi oyni boshlash', handleNewMonth);
+bot.hears(['🏁 Yangi oyni boshlash', '🔄 Yangi oyni boshlash'], handleNewMonth);
 
 // Inline tugmalar bilan ishlash
 bot.callbackQuery(/delete_(.+)/, async (ctx) => {
@@ -586,7 +589,8 @@ bot.on('message:text', async (ctx) => {
 
   // Harajat sifatida tahlil qilish
   const defaultName = ctx.from?.first_name || 'Sherik';
-  const parsed = parseExpenseMessage(text, defaultName);
+  const members = storage.getMembers().map(m => m.name);
+  const parsed = parseExpenseMessage(text, defaultName, members);
 
   if (parsed && parsed.amount > 0) {
     const exp = storage.addExpense('main', {
@@ -597,7 +601,7 @@ bot.on('message:text', async (ctx) => {
     });
 
     const chatData = storage.getChatData('main');
-    const calc = calculateSettlement(chatData.expenses, chatData.peopleCount);
+    const calc = calculateSettlement(chatData.expenses, chatData.peopleCount, members);
 
     const inlineKb = new InlineKeyboard();
     if (webAppUrl) {
@@ -618,6 +622,18 @@ bot.on('message:text', async (ctx) => {
 
     // Boshqa barcha sheriklarga yangi harajat haqida bildirishnoma yuborish
     broadcastNewExpense(exp, ctx.chat.id).catch(e => console.warn('Broadcast error:', e.message));
+  } else if (ctx.chat?.type === 'private') {
+    // Agar shaxsiy chatda xabar yozilib, harajat deb topilmasa
+    await ctx.reply(
+      `ℹ️ <b>Xabarni tushunmadim.</b>\n\n` +
+      `Harajat yozish uchun masalan:\n` +
+      `• <code>70000 bozorlik</code>\n` +
+      `• <code>Ali 70000 go'sht</code>\n` +
+      `• <code>non 15000</code>\n` +
+      `• <code>tuxum 86 000</code>\n\n` +
+      `Hisob-kitobni ko'rish uchun /hisob yoki pastdagi <b>📱 Ilovani ochish</b> tugmasini bosing.`,
+      { parse_mode: 'HTML', reply_markup: getMainKeyboard(ctx.chat.id) }
+    );
   }
 });
 
