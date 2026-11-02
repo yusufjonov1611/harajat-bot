@@ -87,6 +87,9 @@ class Storage {
   }
 
   save() {
+    if (this.data.main) {
+      this.data.main.updatedAt = new Date().toISOString();
+    }
     this.saveToDisk();
     this.scheduleGitHubSync();
   }
@@ -130,9 +133,11 @@ class Storage {
                 // If remote has data, merge or adopt it
                 const remoteExpenses = parsed.main?.expenses || parsed.web_global?.expenses || [];
                 const localExpenses = this.data.main?.expenses || [];
+                const remoteUpdated = parsed.main?.updatedAt || parsed.updatedAt || 0;
+                const localUpdated = this.data.main?.updatedAt || this.data.updatedAt || 0;
 
-                // Adopt if remote has more or equal
-                if (remoteExpenses.length >= localExpenses.length) {
+                // Adopt if remote is newer or has more/equal data
+                if (remoteUpdated >= localUpdated || remoteExpenses.length >= localExpenses.length) {
                   this.data = parsed;
                   this.ensureMainRoom();
                   console.log(`☁️ GitHubdan ${remoteExpenses.length} ta harajat sinxronlashtirildi!`);
