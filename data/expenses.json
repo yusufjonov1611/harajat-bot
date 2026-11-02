@@ -8,6 +8,14 @@
         "amount": 86000,
         "description": "Tuxum non, yogʻ",
         "createdAt": "2026-11-02T02:51:00.350Z"
+      },
+      {
+        "id": "mvynww7s0gn1s",
+        "userId": null,
+        "userName": "Ali",
+        "amount": 10000,
+        "description": "Banan",
+        "createdAt": "2026-11-02T02:51:18.424Z"
       }
     ],
     "peopleCount": 3,
