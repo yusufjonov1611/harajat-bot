@@ -144,6 +144,14 @@
         "amount": 30000,
         "description": "Ketchup maynez",
         "createdAt": "2026-11-07T13:49:15.392Z"
+      },
+      {
+        "id": "mw6go146abk0u",
+        "userId": null,
+        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+        "amount": 63000,
+        "description": "Kolbasa",
+        "createdAt": "2026-11-07T13:50:36.966Z"
       }
     ],
     "peopleCount": 3,
@@ -567,6 +575,6 @@
         "peopleCount": 3
       }
     ],
-    "updatedAt": "2026-11-07T13:49:15.392Z"
+    "updatedAt": "2026-11-07T13:50:36.966Z"
   }
 }
