@@ -64,6 +64,14 @@
         "amount": 13000,
         "description": "Non",
         "createdAt": "2026-11-07T13:41:03.121Z"
+      },
+      {
+        "id": "mw6gc08duimd9",
+        "userId": null,
+        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+        "amount": 24000,
+        "description": "Kalbasa",
+        "createdAt": "2026-11-07T13:41:15.949Z"
       }
     ],
     "peopleCount": 3,
@@ -487,6 +495,6 @@
         "peopleCount": 3
       }
     ],
-    "updatedAt": "2026-11-07T13:41:03.121Z"
+    "updatedAt": "2026-11-07T13:41:15.949Z"
   }
 }
