@@ -112,6 +112,14 @@
         "amount": 15000,
         "description": "Choy",
         "createdAt": "2026-11-07T13:43:36.402Z"
+      },
+      {
+        "id": "mw6gixqpu83yr",
+        "userId": null,
+        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+        "amount": 29000,
+        "description": "Banan",
+        "createdAt": "2026-11-07T13:46:39.313Z"
       }
     ],
     "peopleCount": 3,
@@ -535,6 +543,6 @@
         "peopleCount": 3
       }
     ],
-    "updatedAt": "2026-11-07T13:43:36.402Z"
+    "updatedAt": "2026-11-07T13:46:39.313Z"
   }
 }
