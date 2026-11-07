@@ -128,6 +128,14 @@
         "amount": 34000,
         "description": "Dorilar",
         "createdAt": "2026-11-07T13:47:25.552Z"
+      },
+      {
+        "id": "mw6gm18u73vos",
+        "userId": null,
+        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+        "amount": 30000,
+        "description": "Lagʻmon",
+        "createdAt": "2026-11-07T13:49:03.822Z"
       }
     ],
     "peopleCount": 3,
@@ -551,6 +559,6 @@
         "peopleCount": 3
       }
     ],
-    "updatedAt": "2026-11-07T13:47:25.552Z"
+    "updatedAt": "2026-11-07T13:49:03.822Z"
   }
 }
