@@ -88,6 +88,14 @@
         "amount": 16000,
         "description": "Kofe",
         "createdAt": "2026-11-07T13:42:11.293Z"
+      },
+      {
+        "id": "mw6gds4u4aais",
+        "userId": null,
+        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+        "amount": 13000,
+        "description": "Goʻsht tovuq",
+        "createdAt": "2026-11-07T13:42:38.766Z"
       }
     ],
     "peopleCount": 3,
@@ -511,6 +519,6 @@
         "peopleCount": 3
       }
     ],
-    "updatedAt": "2026-11-07T13:42:11.293Z"
+    "updatedAt": "2026-11-07T13:42:38.766Z"
   }
 }
