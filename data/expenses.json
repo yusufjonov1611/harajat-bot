@@ -136,6 +136,14 @@
         "amount": 30000,
         "description": "Lagʻmon",
         "createdAt": "2026-11-07T13:49:03.822Z"
+      },
+      {
+        "id": "mw6gma68xggfp",
+        "userId": null,
+        "userName": "Ali",
+        "amount": 30000,
+        "description": "Ketchup maynez",
+        "createdAt": "2026-11-07T13:49:15.392Z"
       }
     ],
     "peopleCount": 3,
@@ -559,6 +567,6 @@
         "peopleCount": 3
       }
     ],
-    "updatedAt": "2026-11-07T13:49:03.822Z"
+    "updatedAt": "2026-11-07T13:49:15.392Z"
   }
 }
