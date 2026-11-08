@@ -1,159 +1,6 @@
 {
   "main": {
-    "expenses": [
-      {
-        "id": "mvynwi9qo5rcj",
-        "userId": null,
-        "userName": "Ali",
-        "amount": 86000,
-        "description": "Tuxum non, yogʻ",
-        "createdAt": "2026-11-02T02:51:00.350Z"
-      },
-      {
-        "id": "mvynww7s0gn1s",
-        "userId": null,
-        "userName": "Ali",
-        "amount": 10000,
-        "description": "Banan",
-        "createdAt": "2026-11-02T02:51:18.424Z"
-      },
-      {
-        "id": "mvynyjc8366fy",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 45000,
-        "description": "Chuchvara, Qurt",
-        "createdAt": "2026-11-02T02:52:35.048Z"
-      },
-      {
-        "id": "mvynzdhgsc6z4",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 20000,
-        "description": "Qalampir",
-        "createdAt": "2026-11-02T02:53:14.116Z"
-      },
-      {
-        "id": "mvynzkhqpug4s",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 15000,
-        "description": "Non",
-        "createdAt": "2026-11-02T02:53:23.198Z"
-      },
-      {
-        "id": "mw6gbb7uxmm5w",
-        "userId": null,
-        "userName": "Ali",
-        "amount": 22000,
-        "description": "Suv",
-        "createdAt": "2026-11-07T13:40:43.530Z"
-      },
-      {
-        "id": "mw6gbis3up7om",
-        "userId": null,
-        "userName": "Ali",
-        "amount": 22000,
-        "description": "Non",
-        "createdAt": "2026-11-07T13:40:53.331Z"
-      },
-      {
-        "id": "mw6gbqc1u9l5u",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 13000,
-        "description": "Non",
-        "createdAt": "2026-11-07T13:41:03.121Z"
-      },
-      {
-        "id": "mw6gc08duimd9",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 24000,
-        "description": "Kalbasa",
-        "createdAt": "2026-11-07T13:41:15.949Z"
-      },
-      {
-        "id": "mw6gcewbplvza",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 10000,
-        "description": "Limon",
-        "createdAt": "2026-11-07T13:41:34.955Z"
-      },
-      {
-        "id": "mw6gd6xp7bul6",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 16000,
-        "description": "Kofe",
-        "createdAt": "2026-11-07T13:42:11.293Z"
-      },
-      {
-        "id": "mw6gds4u4aais",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 13000,
-        "description": "Goʻsht tovuq",
-        "createdAt": "2026-11-07T13:42:38.766Z"
-      },
-      {
-        "id": "mw6gefvkj9ohw",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 15000,
-        "description": "Tuxum",
-        "createdAt": "2026-11-07T13:43:09.536Z"
-      },
-      {
-        "id": "mw6gf0lu1qtrq",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 15000,
-        "description": "Choy",
-        "createdAt": "2026-11-07T13:43:36.402Z"
-      },
-      {
-        "id": "mw6gixqpu83yr",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 29000,
-        "description": "Banan",
-        "createdAt": "2026-11-07T13:46:39.313Z"
-      },
-      {
-        "id": "mw6gjxf4p6x09",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 34000,
-        "description": "Dorilar",
-        "createdAt": "2026-11-07T13:47:25.552Z"
-      },
-      {
-        "id": "mw6gm18u73vos",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 30000,
-        "description": "Lagʻmon",
-        "createdAt": "2026-11-07T13:49:03.822Z"
-      },
-      {
-        "id": "mw6gma68xggfp",
-        "userId": null,
-        "userName": "Ali",
-        "amount": 30000,
-        "description": "Ketchup maynez",
-        "createdAt": "2026-11-07T13:49:15.392Z"
-      },
-      {
-        "id": "mw6go146abk0u",
-        "userId": null,
-        "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
-        "amount": 63000,
-        "description": "Kolbasa",
-        "createdAt": "2026-11-07T13:50:36.966Z"
-      }
-    ],
+    "expenses": [],
     "peopleCount": 4,
     "members": {},
     "customMembers": [
@@ -574,8 +421,167 @@
           }
         ],
         "peopleCount": 3
+      },
+      {
+        "id": "mw84aloq",
+        "archivedAt": "2026-11-08T17:39:47.402Z",
+        "expenses": [
+          {
+            "id": "mvynwi9qo5rcj",
+            "userId": null,
+            "userName": "Ali",
+            "amount": 86000,
+            "description": "Tuxum non, yogʻ",
+            "createdAt": "2026-11-02T02:51:00.350Z"
+          },
+          {
+            "id": "mvynww7s0gn1s",
+            "userId": null,
+            "userName": "Ali",
+            "amount": 10000,
+            "description": "Banan",
+            "createdAt": "2026-11-02T02:51:18.424Z"
+          },
+          {
+            "id": "mvynyjc8366fy",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 45000,
+            "description": "Chuchvara, Qurt",
+            "createdAt": "2026-11-02T02:52:35.048Z"
+          },
+          {
+            "id": "mvynzdhgsc6z4",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 20000,
+            "description": "Qalampir",
+            "createdAt": "2026-11-02T02:53:14.116Z"
+          },
+          {
+            "id": "mvynzkhqpug4s",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 15000,
+            "description": "Non",
+            "createdAt": "2026-11-02T02:53:23.198Z"
+          },
+          {
+            "id": "mw6gbb7uxmm5w",
+            "userId": null,
+            "userName": "Ali",
+            "amount": 22000,
+            "description": "Suv",
+            "createdAt": "2026-11-07T13:40:43.530Z"
+          },
+          {
+            "id": "mw6gbis3up7om",
+            "userId": null,
+            "userName": "Ali",
+            "amount": 22000,
+            "description": "Non",
+            "createdAt": "2026-11-07T13:40:53.331Z"
+          },
+          {
+            "id": "mw6gbqc1u9l5u",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 13000,
+            "description": "Non",
+            "createdAt": "2026-11-07T13:41:03.121Z"
+          },
+          {
+            "id": "mw6gc08duimd9",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 24000,
+            "description": "Kalbasa",
+            "createdAt": "2026-11-07T13:41:15.949Z"
+          },
+          {
+            "id": "mw6gcewbplvza",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 10000,
+            "description": "Limon",
+            "createdAt": "2026-11-07T13:41:34.955Z"
+          },
+          {
+            "id": "mw6gd6xp7bul6",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 16000,
+            "description": "Kofe",
+            "createdAt": "2026-11-07T13:42:11.293Z"
+          },
+          {
+            "id": "mw6gds4u4aais",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 13000,
+            "description": "Goʻsht tovuq",
+            "createdAt": "2026-11-07T13:42:38.766Z"
+          },
+          {
+            "id": "mw6gefvkj9ohw",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 15000,
+            "description": "Tuxum",
+            "createdAt": "2026-11-07T13:43:09.536Z"
+          },
+          {
+            "id": "mw6gf0lu1qtrq",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 15000,
+            "description": "Choy",
+            "createdAt": "2026-11-07T13:43:36.402Z"
+          },
+          {
+            "id": "mw6gixqpu83yr",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 29000,
+            "description": "Banan",
+            "createdAt": "2026-11-07T13:46:39.313Z"
+          },
+          {
+            "id": "mw6gjxf4p6x09",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 34000,
+            "description": "Dorilar",
+            "createdAt": "2026-11-07T13:47:25.552Z"
+          },
+          {
+            "id": "mw6gm18u73vos",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 30000,
+            "description": "Lagʻmon",
+            "createdAt": "2026-11-07T13:49:03.822Z"
+          },
+          {
+            "id": "mw6gma68xggfp",
+            "userId": null,
+            "userName": "Ali",
+            "amount": 30000,
+            "description": "Ketchup maynez",
+            "createdAt": "2026-11-07T13:49:15.392Z"
+          },
+          {
+            "id": "mw6go146abk0u",
+            "userId": null,
+            "userName": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
+            "amount": 63000,
+            "description": "Kolbasa",
+            "createdAt": "2026-11-07T13:50:36.966Z"
+          }
+        ],
+        "peopleCount": 4
       }
     ],
-    "updatedAt": "2026-11-08T17:37:24.371Z"
+    "updatedAt": "2026-11-08T17:39:47.402Z"
   }
 }
