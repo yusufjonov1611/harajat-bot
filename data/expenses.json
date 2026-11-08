@@ -1,6 +1,15 @@
 {
   "main": {
-    "expenses": [],
+    "expenses": [
+      {
+        "id": "mw84exd5e19sy",
+        "userId": null,
+        "userName": "Ali",
+        "amount": 117000,
+        "description": "Ketchup mayonez chips,",
+        "createdAt": "2026-11-08T17:43:09.161Z"
+      }
+    ],
     "peopleCount": 4,
     "members": {},
     "customMembers": [
@@ -582,6 +591,6 @@
         "peopleCount": 4
       }
     ],
-    "updatedAt": "2026-11-08T17:39:47.402Z"
+    "updatedAt": "2026-11-08T17:43:09.161Z"
   }
 }
