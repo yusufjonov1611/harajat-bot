@@ -1,15 +1,6 @@
 {
   "main": {
-    "expenses": [
-      {
-        "id": "mw84exd5e19sy",
-        "userId": null,
-        "userName": "Ali",
-        "amount": 117000,
-        "description": "Ketchup mayonez chips,",
-        "createdAt": "2026-11-08T17:43:09.161Z"
-      }
-    ],
+    "expenses": [],
     "peopleCount": 4,
     "members": {},
     "customMembers": [
@@ -19,6 +10,12 @@
       "Bekmurod"
     ],
     "subscribers": {
+      "866752927": {
+        "id": "866752927",
+        "name": "Ali",
+        "type": "private",
+        "updatedAt": "2026-11-09T15:16:07.495Z"
+      },
       "6169032422": {
         "id": "6169032422",
         "name": "➪ 𝓨𝓾𝓼𝓾𝓯𝓳𝓸𝓷𝓸𝓿 𝓐𝓫𝓭𝓾𝓵𝓵𝓸𝓱",
@@ -591,6 +588,6 @@
         "peopleCount": 4
       }
     ],
-    "updatedAt": "2026-11-08T17:43:09.161Z"
+    "updatedAt": "2026-11-09T15:16:07.495Z"
   }
 }
