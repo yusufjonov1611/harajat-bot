@@ -8,6 +8,14 @@
         "amount": 117000,
         "description": "Pomidor bodring chips mayonez ketchup hurmo",
         "createdAt": "2026-11-09T15:17:42.589Z"
+      },
+      {
+        "id": "mw9epcqhq60oj",
+        "userId": null,
+        "userName": "Ali",
+        "amount": 86000,
+        "description": "Shakar grechka makron guruch kasha gerkules",
+        "createdAt": "2026-11-09T15:18:57.977Z"
       }
     ],
     "peopleCount": 4,
@@ -597,6 +605,6 @@
         "peopleCount": 4
       }
     ],
-    "updatedAt": "2026-11-09T15:17:42.589Z"
+    "updatedAt": "2026-11-09T15:18:57.977Z"
   }
 }
