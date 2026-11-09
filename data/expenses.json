@@ -1,6 +1,15 @@
 {
   "main": {
-    "expenses": [],
+    "expenses": [
+      {
+        "id": "mw9enqkdyho0i",
+        "userId": null,
+        "userName": "Ali",
+        "amount": 117000,
+        "description": "Pomidor bodring chips mayonez ketchup hurmo",
+        "createdAt": "2026-11-09T15:17:42.589Z"
+      }
+    ],
     "peopleCount": 4,
     "members": {},
     "customMembers": [
@@ -588,6 +597,6 @@
         "peopleCount": 4
       }
     ],
-    "updatedAt": "2026-11-09T15:16:07.495Z"
+    "updatedAt": "2026-11-09T15:17:42.589Z"
   }
 }
